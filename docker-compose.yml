@@ -1,0 +1,49 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: similarity_checker
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  server:
+    build:
+      context: .
+      dockerfile: docker/server.Dockerfile
+    env_file:
+      - server/.env.example
+    depends_on:
+      - postgres
+      - ml
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./sample-data:/app/sample-data
+
+  ml:
+    build:
+      context: .
+      dockerfile: docker/ml.Dockerfile
+    ports:
+      - "8001:8001"
+
+  client:
+    build:
+      context: .
+      dockerfile: docker/client.Dockerfile
+    env_file:
+      - client/.env.example
+    depends_on:
+      - server
+    ports:
+      - "3000:3000"
+
+volumes:
+  postgres_data:
+

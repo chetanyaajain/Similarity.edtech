@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-sans: "Satoshi", "Avenir Next", sans-serif;
+  --font-display: "Clash Display", "Avenir Next", sans-serif;
+  --background: 210 35% 98%;
+  --foreground: 220 32% 12%;
+  --card: 0 0% 100%;
+  --card-foreground: 220 32% 12%;
+  --primary: 198 94% 48%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 215 50% 92%;
+  --secondary-foreground: 220 32% 12%;
+  --muted: 215 33% 94%;
+  --muted-foreground: 215 18% 42%;
+  --accent: 16 92% 58%;
+  --accent-foreground: 0 0% 100%;
+  --border: 215 25% 84%;
+  --input: 215 25% 84%;
+  --ring: 198 94% 48%;
+}
+
+.dark {
+  --background: 220 34% 8%;
+  --foreground: 0 0% 98%;
+  --card: 220 29% 11%;
+  --card-foreground: 0 0% 98%;
+  --primary: 195 94% 57%;
+  --primary-foreground: 220 34% 8%;
+  --secondary: 222 22% 16%;
+  --secondary-foreground: 0 0% 98%;
+  --muted: 221 20% 17%;
+  --muted-foreground: 216 15% 68%;
+  --accent: 18 100% 61%;
+  --accent-foreground: 0 0% 100%;
+  --border: 222 18% 18%;
+  --input: 222 18% 18%;
+  --ring: 195 94% 57%;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(14, 165, 233, 0.16), transparent 30%),
+    radial-gradient(circle at top right, rgba(249, 115, 22, 0.14), transparent 25%),
+    linear-gradient(180deg, hsl(var(--background)), hsl(var(--background)));
+  color: hsl(var(--foreground));
+}
+
+.glass-panel {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.06));
+  backdrop-filter: blur(24px);
+}
+
