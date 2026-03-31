@@ -10,8 +10,8 @@ const items = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/batches", label: "Batches", icon: FolderKanban },
   { href: "/upload", label: "Upload", icon: UploadCloud },
-  { href: "/results/1", label: "Results", icon: FileSearch2 },
-  { href: "/reports/1", label: "Reports", icon: BarChart3 }
+  { href: "/batches", label: "Results", icon: FileSearch2 },
+  { href: "/batches", label: "Reports", icon: BarChart3 }
 ];
 
 export function Sidebar() {
@@ -45,4 +45,3 @@ export function Sidebar() {
     </motion.aside>
   );
 }
-
