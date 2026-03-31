@@ -118,6 +118,14 @@ When running locally:
 - Backend docs: `http://127.0.0.1:8000/docs`
 - ML docs: `http://127.0.0.1:8001/docs`
 
+## Public Deployment
+
+This repo is prepared for:
+- Vercel for the frontend
+- Render for the backend and ML service
+
+See [Public Deployment Guide](/Users/admin/Documents/Playground/docs/DEPLOY_PUBLIC.md) for the exact setup.
+
 ## Quick Start
 
 ### Option 1: Run locally
@@ -183,6 +191,7 @@ That is why the repo also includes:
 - [User Guide](/Users/admin/Documents/Playground/docs/USER_GUIDE.md)
 - [Architecture Notes](/Users/admin/Documents/Playground/docs/ARCHITECTURE.md)
 - [Database Schema](/Users/admin/Documents/Playground/docs/SCHEMA.md)
+- [Public Deployment Guide](/Users/admin/Documents/Playground/docs/DEPLOY_PUBLIC.md)
 - [Deployment Guide](/Users/admin/Documents/Playground/docker/DEPLOYMENT.md)
 
 ## Suggested GitHub Repo Description
@@ -201,4 +210,3 @@ That is why the repo also includes:
 - `tailwindcss`
 - `postgresql`
 - `sentence-transformers`
-
