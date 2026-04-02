@@ -6,6 +6,7 @@ from pydantic import BaseModel
 class SubmissionRead(BaseModel):
     id: int
     batch_id: int
+    student_prn: str | None
     student_name: str
     student_email: str | None
     filename: str
@@ -32,4 +33,3 @@ class SimilarityEdgeRead(BaseModel):
 
     class Config:
         from_attributes = True
-

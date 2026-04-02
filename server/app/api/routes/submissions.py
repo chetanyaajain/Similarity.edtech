@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+import re
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from sqlalchemy import or_
@@ -18,6 +19,25 @@ from app.services.ws_manager import ws_manager
 router = APIRouter()
 ALLOWED_EXTENSIONS = {".pdf", ".docx", ".txt"}
 MAX_FILE_SIZE = 10 * 1024 * 1024
+
+
+def parse_student_identity(filename: str) -> dict[str, str | None]:
+    stem = Path(filename).stem.strip()
+    if not stem:
+        return {"student_prn": None, "student_name": "Unknown Student"}
+
+    if "_" in stem:
+        prn, raw_name = stem.split("_", 1)
+    else:
+        prn, raw_name = None, stem
+
+    cleaned_name = re.sub(r"[_\-]+", " ", raw_name).strip()
+    cleaned_name = re.sub(r"\s+", " ", cleaned_name)
+
+    return {
+        "student_prn": prn.strip() if prn else None,
+        "student_name": cleaned_name.title() if cleaned_name else "Unknown Student",
+    }
 
 
 @router.get("/batch/{batch_id}", response_model=list[SubmissionRead])
@@ -101,6 +121,9 @@ async def upload_assignments(
     await ws_manager.broadcast(batch_id, {"event": "processing", "progress": 10})
 
     for student, file in zip(student_rows, files):
+        if not file.filename:
+            raise HTTPException(status_code=400, detail="Uploaded file is missing a filename")
+
         suffix = Path(file.filename or "").suffix.lower()
         if suffix not in ALLOWED_EXTENSIONS:
             raise HTTPException(status_code=400, detail=f"Invalid file type: {suffix}")
@@ -108,7 +131,12 @@ async def upload_assignments(
         if len(content) > MAX_FILE_SIZE:
             raise HTTPException(status_code=400, detail=f"{file.filename} exceeds size limit")
 
-        destination = upload_dir / f"{batch_id}_{student['studentName']}_{file.filename}"
+        parsed_identity = parse_student_identity(file.filename)
+        student_name = parsed_identity["student_name"]
+        student_prn = parsed_identity["student_prn"]
+        student_email = student.get("studentEmail") or None
+
+        destination = upload_dir / f"{batch_id}_{student_name}_{file.filename}"
         destination.write_bytes(content)
         text = extract_text(destination)
         if not text.strip():
@@ -117,14 +145,15 @@ async def upload_assignments(
             db.query(Submission)
             .filter(
                 Submission.batch_id == batch_id,
-                Submission.student_name == student["studentName"],
+                Submission.student_name == student_name,
             )
             .count()
         )
         submission = Submission(
             batch_id=batch_id,
-            student_name=student["studentName"],
-            student_email=student.get("studentEmail"),
+            student_prn=student_prn,
+            student_name=student_name,
+            student_email=student_email,
             filename=file.filename or destination.name,
             file_type=suffix.replace(".", ""),
             extracted_text=text,
@@ -144,7 +173,12 @@ async def upload_assignments(
         .all()
     )
     documents = [
-        {"id": submission.id, "student_name": submission.student_name, "text": submission.extracted_text}
+        {
+            "id": submission.id,
+            "student_name": submission.student_name,
+            "student_prn": submission.student_prn,
+            "text": submission.extracted_text,
+        }
         for submission in all_submissions
     ]
     analysis = await analyze_documents(documents)

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { BarChart3, FileSearch2, FolderKanban, LayoutDashboard, UploadCloud } from "lucide-react";
+import { FolderKanban, LayoutDashboard } from "lucide-react";
 import { motion } from "framer-motion";
 
 import { cn } from "@/lib/utils";
@@ -9,9 +9,6 @@ import { cn } from "@/lib/utils";
 const items = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/batches", label: "Batches", icon: FolderKanban },
-  { href: "/upload", label: "Upload", icon: UploadCloud },
-  { href: "/batches", label: "Results", icon: FileSearch2 },
-  { href: "/batches", label: "Reports", icon: BarChart3 }
 ];
 
 export function Sidebar() {

@@ -67,7 +67,7 @@ export default function HomePage() {
                 </Link>
               </Button>
               <Button asChild variant="outline" size="lg">
-                <Link href="/upload">Watch processing flow</Link>
+                <Link href="/batches">Open batch workspace</Link>
               </Button>
             </div>
           </div>
@@ -117,4 +117,3 @@ export default function HomePage() {
     </main>
   );
 }
-

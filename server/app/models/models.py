@@ -40,6 +40,7 @@ class Submission(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     batch_id: Mapped[int] = mapped_column(ForeignKey("batches.id"), index=True)
+    student_prn: Mapped[str | None] = mapped_column(String(64), index=True, nullable=True)
     student_name: Mapped[str] = mapped_column(String(120), index=True)
     student_email: Mapped[str | None] = mapped_column(String(255), nullable=True)
     filename: Mapped[str] = mapped_column(String(255))
@@ -94,4 +95,3 @@ class Report(Base):
     pdf_path: Mapped[str | None] = mapped_column(String(255), nullable=True)
     emailed: Mapped[bool] = mapped_column(Boolean, default=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
-

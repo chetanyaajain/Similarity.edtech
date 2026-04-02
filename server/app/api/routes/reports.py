@@ -43,7 +43,7 @@ def create_report(
             f"High-risk pairs: {payload['totals']['highRiskPairs']}",
         ]
         + [
-            f"{edge['sourceSubmissionId']} vs {edge['targetSubmissionId']}: "
+            f"{edge['sourceStudentName']} vs {edge['targetStudentName']}: "
             f"{edge['similarityPercentage']}% | {edge['explanation']}"
             for edge in payload["edges"][:15]
         ],
@@ -106,8 +106,8 @@ def chat_about_report(
             return {"answer": "No similarity edges are available for this report yet."}
         return {
             "answer": (
-                f"The highest-risk pair in this report is between submissions "
-                f"{top_edge['sourceSubmissionId']} and {top_edge['targetSubmissionId']} "
+                f"The highest-risk pair in this report is between "
+                f"{top_edge['sourceStudentName']} and {top_edge['targetStudentName']} "
                 f"at {top_edge['similarityPercentage']}% similarity. "
                 f"{top_edge['explanation']}"
             )

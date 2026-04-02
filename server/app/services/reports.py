@@ -7,7 +7,9 @@ def build_report_payload(batch: Batch, submissions: list[Submission], edges: lis
     leaderboard = sorted(
         [
             {
+                "studentPrn": item.student_prn,
                 "studentName": item.student_name,
+                "filename": item.filename,
                 "originalityScore": item.originality_score,
                 "keywords": item.keywords,
             }
@@ -64,6 +66,12 @@ def build_report_payload(batch: Batch, submissions: list[Submission], edges: lis
                 "id": edge.id,
                 "sourceSubmissionId": edge.source_submission_id,
                 "targetSubmissionId": edge.target_submission_id,
+                "sourceStudentPrn": edge.source_submission.student_prn,
+                "sourceStudentName": edge.source_submission.student_name,
+                "sourceFilename": edge.source_submission.filename,
+                "targetStudentPrn": edge.target_submission.student_prn,
+                "targetStudentName": edge.target_submission.student_name,
+                "targetFilename": edge.target_submission.filename,
                 "similarityPercentage": edge.similarity_percentage,
                 "explanation": edge.explanation,
                 "matchedSegments": edge.matched_segments,
@@ -71,4 +79,3 @@ def build_report_payload(batch: Batch, submissions: list[Submission], edges: lis
             for edge in edges
         ],
     }
-

@@ -7,6 +7,8 @@ type Match = {
 };
 
 type ComparisonPanelProps = {
+  leftMeta?: string;
+  rightMeta?: string;
   leftStudent: string;
   rightStudent: string;
   similarity: number;
@@ -22,6 +24,11 @@ export function ComparisonPanel(props: ComparisonPanelProps) {
           <h3 className="text-xl font-semibold text-white">
             {props.leftStudent} vs {props.rightStudent}
           </h3>
+          {(props.leftMeta || props.rightMeta) ? (
+            <p className="mt-2 text-xs uppercase tracking-[0.25em] text-white/45">
+              {props.leftMeta || props.leftStudent} matched with {props.rightMeta || props.rightStudent}
+            </p>
+          ) : null}
           <p className="mt-2 max-w-2xl text-sm text-white/60">{props.explanation}</p>
         </div>
         <div className="rounded-full border border-rose-400/20 bg-rose-400/10 px-4 py-2 text-sm text-rose-100">
@@ -52,4 +59,3 @@ export function ComparisonPanel(props: ComparisonPanelProps) {
     </Card>
   );
 }
-
