@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user
@@ -15,15 +16,32 @@ from app.utils.pdf import generate_report_pdf
 router = APIRouter()
 
 
+def get_owned_batch(batch_id: int, user: User, db: Session) -> Batch:
+    batch = db.query(Batch).filter(Batch.id == batch_id, Batch.owner_id == user.id).first()
+    if not batch:
+        raise HTTPException(status_code=404, detail="Batch not found")
+    return batch
+
+
+def get_owned_report(report_id: int, user: User, db: Session) -> Report:
+    report = (
+        db.query(Report)
+        .join(Batch, Batch.id == Report.batch_id)
+        .filter(Report.id == report_id, Batch.owner_id == user.id)
+        .first()
+    )
+    if not report:
+        raise HTTPException(status_code=404, detail="Report not found")
+    return report
+
+
 @router.post("/batch/{batch_id}", response_model=ReportRead)
 def create_report(
     batch_id: int,
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    batch = db.query(Batch).filter(Batch.id == batch_id, Batch.owner_id == user.id).first()
-    if not batch:
-        raise HTTPException(status_code=404, detail="Batch not found")
+    batch = get_owned_batch(batch_id, user, db)
 
     submissions = db.query(Submission).filter(Submission.batch_id == batch_id).all()
     edges = (
@@ -61,21 +79,52 @@ def create_report(
     return report
 
 
+@router.get("/batch/{batch_id}/latest", response_model=ReportRead)
+def get_latest_report_for_batch(
+    batch_id: int,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    get_owned_batch(batch_id, user, db)
+    report = (
+        db.query(Report)
+        .filter(Report.batch_id == batch_id)
+        .order_by(Report.created_at.desc())
+        .first()
+    )
+    if not report:
+        raise HTTPException(status_code=404, detail="Report not found")
+    return report
+
+
 @router.get("/{report_id}", response_model=ReportRead)
 def get_report(
     report_id: int,
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    report = (
-        db.query(Report)
-        .join(Batch, Batch.id == Report.batch_id)
-        .filter(Report.id == report_id, Batch.owner_id == user.id)
-        .first()
+    return get_owned_report(report_id, user, db)
+
+
+@router.get("/{report_id}/download")
+def download_report(
+    report_id: int,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    report = get_owned_report(report_id, user, db)
+    if not report.pdf_path:
+        raise HTTPException(status_code=404, detail="Report PDF not found")
+
+    pdf_path = Path(report.pdf_path)
+    if not pdf_path.exists():
+        raise HTTPException(status_code=404, detail="Report PDF not found")
+
+    return FileResponse(
+        pdf_path,
+        media_type="application/pdf",
+        filename=pdf_path.name,
     )
-    if not report:
-        raise HTTPException(status_code=404, detail="Report not found")
-    return report
 
 
 @router.post("/{report_id}/chat")
@@ -85,14 +134,7 @@ def chat_about_report(
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    report = (
-        db.query(Report)
-        .join(Batch, Batch.id == Report.batch_id)
-        .filter(Report.id == report_id, Batch.owner_id == user.id)
-        .first()
-    )
-    if not report:
-        raise HTTPException(status_code=404, detail="Report not found")
+    report = get_owned_report(report_id, user, db)
 
     question = payload.question.lower()
     totals = report.report_payload.get("totals", {})

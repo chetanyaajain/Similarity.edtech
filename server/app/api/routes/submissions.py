@@ -40,6 +40,18 @@ def parse_student_identity(filename: str) -> dict[str, str | None]:
     }
 
 
+def student_lookup_filter(batch_id: int, student_name: str, student_prn: str | None):
+    if student_prn:
+        return (
+            Submission.batch_id == batch_id,
+            Submission.student_prn == student_prn,
+        )
+    return (
+        Submission.batch_id == batch_id,
+        Submission.student_name == student_name,
+    )
+
+
 @router.get("/batch/{batch_id}", response_model=list[SubmissionRead])
 def list_submissions(
     batch_id: int,
@@ -89,8 +101,11 @@ def submission_history(
     return (
         db.query(Submission)
         .filter(
-            Submission.batch_id == submission.batch_id,
-            Submission.student_name == submission.student_name,
+            *student_lookup_filter(
+                submission.batch_id,
+                submission.student_name,
+                submission.student_prn,
+            ),
         )
         .order_by(Submission.version.desc())
         .all()
@@ -143,10 +158,7 @@ async def upload_assignments(
             raise HTTPException(status_code=400, detail=f"No readable text found in {file.filename}")
         previous_version = (
             db.query(Submission)
-            .filter(
-                Submission.batch_id == batch_id,
-                Submission.student_name == student_name,
-            )
+            .filter(*student_lookup_filter(batch_id, student_name, student_prn))
             .count()
         )
         submission = Submission(
