@@ -102,6 +102,20 @@ export const DESTINATION_LIBRARY = {
       Nightlife: ["Austurstræti bars", "Old Harbour cocktail den", "Live music venue on Laugavegur", "Natural wine bar in Miðborg"]
     }
   },
+  pune: {
+    defaultTemplates: ["arrival", "culture", "market", "scenic", "nightlife"],
+    areas: ["Shivajinagar", "Camp", "Koregaon Park", "Deccan", "Katraj", "Swargate", "Bund Garden", "Parvati Hill"],
+    themes: {
+      Food: ["Vaishali", "Goodluck Cafe", "Kayani Bakery", "Sujata Mastani", "Garden Vada Pav Centre", "Wadeshwar"],
+      Architecture: ["Aga Khan Palace", "Shaniwar Wada", "Vishrambaug Wada", "Pataleshwar Cave Temple", "Raja Dinkar Kelkar Museum", "Dagdusheth Halwai Ganpati Temple"],
+      Wellness: ["Okayama Friendship Garden", "Osho Teerth Park", "Empress Garden", "Bund Garden", "Peshwe Energy Park", "Khadakwasla lakeside"],
+      Art: ["Raja Dinkar Kelkar Museum", "Darshan Museum", "Mahatma Phule Museum", "Tribal Museum Pune", "Blades of Glory Museum", "Bhandarkar Oriental Research Institute"],
+      Nature: ["Parvati Hill", "Vetal Tekdi", "Pashan Lake", "Rajiv Gandhi Zoological Park", "Katraj Lake", "Taljai Hills"],
+      History: ["Shaniwar Wada", "Aga Khan Palace", "Lal Mahal", "Pataleshwar Cave Temple", "Sinhagad Fort", "Dagdusheth Halwai Ganpati Temple"],
+      Shopping: ["FC Road", "Laxmi Road", "Tulsi Baug", "Phoenix Marketcity Pune", "Fashion Street Camp", "Hong Kong Lane"],
+      Nightlife: ["High Spirits Cafe", "Toit Pune", "Swig Koregaon Park", "Elephant and Co. Kalyani Nagar", "Effingut Pune", "The Urban Foundry"]
+    }
+  },
   paris: {
     defaultTemplates: ["arrival", "culture", "scenic", "market", "nightlife"],
     areas: ["Le Marais", "Saint-Germain", "Montmartre", "Louvre", "Canal Saint-Martin", "Latin Quarter", "Belleville", "Palais Royal"],
@@ -196,6 +210,20 @@ function pickUniquePlace(destination, theme, startIndex, usedPlaces) {
   }
 
   const profile = getDestinationProfile(destination);
+  if (profile?.themes) {
+    const allCuratedPlaces = Object.values(profile.themes).flat();
+    for (const placeName of allCuratedPlaces) {
+      const key = placeName.toLowerCase();
+      if (!usedPlaces.has(key)) {
+        usedPlaces.add(key);
+        return {
+          placeName,
+          area: profile.areas[startIndex % profile.areas.length]
+        };
+      }
+    }
+  }
+
   const area = profile?.areas?.[startIndex % profile.areas.length] || `${destination} central district`;
   const overflow = {
     placeName: genericPlace(destination, theme, startIndex + usedPlaces.size + 5),

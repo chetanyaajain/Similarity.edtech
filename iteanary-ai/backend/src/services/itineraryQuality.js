@@ -7,7 +7,15 @@ const GENERIC_PATTERNS = [
   "design district",
   "city art museum",
   "boutique avenue",
-  "cocktail quarter"
+  "cocktail quarter",
+  "modern cultural center",
+  "skyline viewpoint",
+  "creative warehouse district",
+  "food market hall",
+  "live music street",
+  "chef-led bistro",
+  "shopping boulevard",
+  "urban forest trail"
 ];
 
 function normalize(text) {
@@ -17,7 +25,12 @@ function normalize(text) {
 function isGenericPlace(placeName, destination) {
   const value = normalize(placeName);
   const city = normalize(destination);
-  return GENERIC_PATTERNS.some((pattern) => value.includes(pattern)) || value === city || value === `${city} central district`;
+  return (
+    GENERIC_PATTERNS.some((pattern) => value.includes(pattern)) ||
+    value === city ||
+    value === `${city} central district` ||
+    value.startsWith(`${city} `)
+  );
 }
 
 function cloneJson(value) {

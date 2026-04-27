@@ -9,6 +9,12 @@ const steps = [
   { key: "vibe", label: "Vibe", icon: PartyPopper }
 ];
 
+const budgetTiers = [
+  { label: "Smart saver", value: 1500, description: "lean and efficient" },
+  { label: "Comfort-first", value: 3200, description: "balanced experience" },
+  { label: "Premium escape", value: 7000, description: "luxury-leaning plan" }
+];
+
 export function TripWizard({
   step,
   setStep,
@@ -169,11 +175,25 @@ export function TripWizard({
                 />
               </div>
               <div className="grid gap-3 sm:grid-cols-3">
-                {["Smart saver", "Comfort-first", "Premium escape"].map((tier) => (
-                  <div key={tier} className="rounded-2xl border border-white/8 bg-white/5 p-4 text-sm text-white/65">
-                    {tier}
-                  </div>
-                ))}
+                {budgetTiers.map((tier) => {
+                  const selected = form.budget === tier.value;
+                  return (
+                    <button
+                      key={tier.label}
+                      type="button"
+                      onClick={() => setForm((current) => ({ ...current, budget: tier.value }))}
+                      className={`rounded-2xl border p-4 text-left text-sm transition ${
+                        selected
+                          ? "border-fuchsia-300/40 bg-fuchsia-400/14 text-white shadow-glow"
+                          : "border-white/8 bg-white/5 text-white/65 hover:bg-white/10"
+                      }`}
+                    >
+                      <p className="font-medium">{tier.label}</p>
+                      <p className="mt-2 text-xs uppercase tracking-[0.2em] text-white/45">${tier.value}</p>
+                      <p className="mt-2 text-xs text-white/45">{tier.description}</p>
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}

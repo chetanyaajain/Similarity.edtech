@@ -1,6 +1,52 @@
 import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useMemo, useState } from "react";
+
+const generationStages = [
+  "Reading your destination vibe and travel constraints",
+  "Mapping neighborhoods and must-see landmarks",
+  "Balancing food, culture, movement, and downtime",
+  "Optimizing day-by-day routing for smoother travel",
+  "Finalizing your itinerary with AI refinements"
+];
 
 export function GenerationOverlay({ open }) {
+  const [progress, setProgress] = useState(0);
+  const [activeStage, setActiveStage] = useState(0);
+
+  useEffect(() => {
+    if (!open) {
+      setProgress(0);
+      setActiveStage(0);
+      return undefined;
+    }
+
+    const startedAt = Date.now();
+    const duration = 8000;
+
+    const interval = window.setInterval(() => {
+      const elapsed = Date.now() - startedAt;
+      const nextProgress = Math.min((elapsed / duration) * 100, 100);
+      const nextStage = Math.min(
+        Math.floor((elapsed / duration) * generationStages.length),
+        generationStages.length - 1
+      );
+
+      setProgress(nextProgress);
+      setActiveStage(nextStage);
+    }, 120);
+
+    return () => window.clearInterval(interval);
+  }, [open]);
+
+  const stageItems = useMemo(
+    () =>
+      generationStages.map((stage, index) => ({
+        label: stage,
+        active: index <= activeStage
+      })),
+    [activeStage]
+  );
+
   return (
     <AnimatePresence>
       {open && (
@@ -25,6 +71,7 @@ export function GenerationOverlay({ open }) {
             </div>
             <p className="text-sm uppercase tracking-[0.35em] text-white/50">AI is crafting your journey ✨</p>
             <h3 className="mt-4 text-3xl font-semibold text-white">Synthesizing the perfect route</h3>
+            <p className="mt-4 text-sm leading-6 text-white/62">{generationStages[activeStage]}</p>
             <div className="mx-auto mt-6 flex w-fit gap-3">
               {[0, 1, 2].map((dot) => (
                 <motion.span
@@ -38,9 +85,23 @@ export function GenerationOverlay({ open }) {
             <div className="mt-6 h-2 overflow-hidden rounded-full bg-white/8">
               <motion.div
                 className="h-full bg-[linear-gradient(90deg,#38bdf8,#818cf8,#f472b6)]"
-                animate={{ x: ["-100%", "100%"] }}
-                transition={{ repeat: Infinity, duration: 1.8, ease: "linear" }}
+                animate={{ width: `${progress}%` }}
+                transition={{ duration: 0.18, ease: "easeOut" }}
               />
+            </div>
+            <div className="mt-6 space-y-3 text-left">
+              {stageItems.map((stage) => (
+                <div
+                  key={stage.label}
+                  className={`rounded-2xl border px-4 py-3 text-sm transition ${
+                    stage.active
+                      ? "border-sky-300/25 bg-white/8 text-white"
+                      : "border-white/6 bg-white/[0.03] text-white/38"
+                  }`}
+                >
+                  {stage.label}
+                </div>
+              ))}
             </div>
           </motion.div>
         </motion.div>

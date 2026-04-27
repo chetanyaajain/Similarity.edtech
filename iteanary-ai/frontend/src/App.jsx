@@ -10,6 +10,7 @@ import { ChatPanel } from "./components/ChatPanel";
 import { generateItinerary, modifyItinerary, saveItinerary } from "./utils/api";
 
 const LOCAL_STORAGE_KEY = "iteanary-ai-session";
+const GENERATION_OVERLAY_MIN_DURATION = 8000;
 
 const initialForm = {
   destination: "Tokyo",
@@ -158,7 +159,10 @@ export default function App() {
         ...form,
         interests: form.interests
       };
-      const response = await generateItinerary(payload);
+      const [response] = await Promise.all([
+        generateItinerary(payload),
+        new Promise((resolve) => window.setTimeout(resolve, GENERATION_OVERLAY_MIN_DURATION))
+      ]);
       setItinerary(response.itinerary);
       setShareId(response.shareId);
       pushHistory(response.history);
